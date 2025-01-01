@@ -1,0 +1,50 @@
+services:
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+      args:
+        - configuration=Release
+    ports:
+      - 8000:8000
+    environment:
+      - ASPNETCORE__ENVIRONMENT=${ENVIRONMENT}
+      - ConnectionStrings__DefaultConnection=Server=${SQL_SERVER};Database=${SQL_DATABASE};User ID=${SQL_USER};Password=${SQL_PASSWORD};Trusted_Connection=False;Encrypt=False;
+      - OpenAI__ApiKey=${OpenAIApiKey}
+
+    depends_on:
+      - mssql
+    networks:
+      - mssql_network
+      
+  mssql:
+    #image: mcr.microsoft.com/mssql/server:2022-latest
+    build:
+      context: ./mssql
+      dockerfile: Dockerfile
+    container_name: sqlserver_express
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_PID=Express   # Specifies the edition to run as Express
+      - MSSQL_SA_PASSWORD=${SQL_PASSWORD}   # Set the SA (System Administrator) password
+    ports:
+      - "1433:1433"  # Expose SQL Server port 1433
+    volumes:
+      - mssql_data:/var/opt/mssql  # Persist database data outside of the container
+      - ./scripts:/scripts  # Mount for SQL scripts
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        /opt/mssql/bin/sqlservr & sleep 30s;
+        /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${SQL_PASSWORD} -d master -i /scripts/seed-data.sql; wait
+    networks:
+      - mssql_network
+
+
+volumes:
+  mssql_data: # Named volume to persist data
+
+networks:
+  mssql_network:
+    driver: bridge

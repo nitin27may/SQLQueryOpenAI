@@ -1,0 +1,21 @@
+meta {
+  name: Generate and Execute
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:5275/api/sql/generate-and-execute
+  body: json
+  auth: none
+}
+
+body:json {
+  "List all orders with order details placed in year 2023 by Jane Smith"
+  
+}
+
+body:text {
+  "List all orders placed in December 2023, including order IDs and total amounts."
+  
+}

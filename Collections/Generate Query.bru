@@ -1,0 +1,16 @@
+meta {
+  name: Generate Query
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:5275/api/sql/generate
+  body: json
+  auth: none
+}
+
+body:json {
+  "List all orders placed in December 2023, including order IDs and total amounts."
+  
+}

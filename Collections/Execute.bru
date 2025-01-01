@@ -1,0 +1,15 @@
+meta {
+  name: Execute
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:5275/api/sql/execute
+  body: json
+  auth: none
+}
+
+body:json {
+  "SELECT CustomerName, OrderDate FROM Customers c INNER JOIN Orders o ON c.CustomerID = o.CustomerID WHERE YEAR(o.OrderDate) = 2023;"
+}
