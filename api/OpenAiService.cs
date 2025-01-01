@@ -1,7 +1,7 @@
 using OpenAI.Chat;
 using System.Text.Json;
 
-namespace AIQueryBuilder;
+namespace SQLQueryAI;
 
 /// <summary>
 /// A service that uses the OpenAI Chat API to generate SQL queries

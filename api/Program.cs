@@ -1,4 +1,4 @@
-using AIQueryBuilder;
+using SQLQueryAI;
 
 var builder = WebApplication.CreateBuilder(args);
 

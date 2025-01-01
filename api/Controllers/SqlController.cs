@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace AIQueryBuilder.Controllers;
+namespace SQLQueryAI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]

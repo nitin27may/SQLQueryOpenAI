@@ -2,7 +2,7 @@ using Dapper;
 using Microsoft.Data.SqlClient;
 using System.Text;
 
-namespace AIQueryBuilder;
+namespace SQLQueryAI;
 
 public class DatabaseService
 {

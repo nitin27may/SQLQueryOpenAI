@@ -11,22 +11,22 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 ARG DOTNET_SKIP_POLICY_LOADING=true
 WORKDIR /src
-COPY ["AIQueryBuilder.csproj", "."]
+COPY ["SQLQueryAI.csproj", "."]
 
-RUN dotnet restore "./AIQueryBuilder.csproj"
+RUN dotnet restore "./SQLQueryAI.csproj"
 COPY . .
-RUN dotnet build "./AIQueryBuilder.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "./SQLQueryAI.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 RUN ls /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./AIQueryBuilder.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./SQLQueryAI.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
 # COPY --from=publish /app/publish/Contact.Api.dll .
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "AIQueryBuilder.dll"]
+ENTRYPOINT ["dotnet", "SQLQueryAI.dll"]
