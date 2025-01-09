@@ -117,6 +117,9 @@ Send a POST request to `/execute` with a prompt.
 
 #### Example Request
 
+
+You can use `SQLQueryAI.http` file in VS Code or Visual Studio for calling rest apis.
+
 ```http
 POST {{SQLQueryAI_HostAddress}}/api/sql/execute
 Content-Type: application/json
