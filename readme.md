@@ -1,4 +1,4 @@
-# SQLQueryAI
+# SQLQueryOpenAI
 
 SQLQueryAI is a RESTful web API that uses OpenAI's GPT-4o model to generate SQL queries based on natural language inputs and database schema context. It also supports executing these queries against a SQL database and returning results in JSON format. The application is designed to make database interactions more accessible to non-technical users.
 
