@@ -21,7 +21,7 @@ public class SqlAiServiceFactory
             ProviderType.AzureOpenAI => new AzureOpenAiService(
                 config.ApiKey,
                 config.Endpoint,
-                config.DeploymentName,
+                config.Model,
                 logger as ILogger<AzureOpenAiService>),
             ProviderType.Claude => new ClaudeService(config.ApiKey, logger as ILogger<ClaudeService>),
             ProviderType.Gemini => new GeminiService(config.ApiKey, logger as ILogger<GeminiService>),

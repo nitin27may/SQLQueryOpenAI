@@ -6,21 +6,22 @@ namespace SQLQueryAI.services;
 
 public class AzureOpenAiService : ISqlAiService
 {
-  private readonly AzureOpenAIClient _azureClient;
-    private readonly string _deploymentName;
+    private readonly AzureOpenAIClient _azureClient;
+    private readonly string _modelName;
     private readonly ILogger<AzureOpenAiService> _logger;
 
-    public AzureOpenAiService(string apiKey, string endpoint, string deploymentName, ILogger<AzureOpenAiService> logger)
+    public AzureOpenAiService(string apiKey, string endpoint, string modelName, ILogger<AzureOpenAiService> logger)
     {
         _azureClient = new AzureOpenAIClient(new Uri(endpoint), new Azure.AzureKeyCredential(apiKey));
-        _deploymentName = deploymentName;
+        _modelName = modelName;
         _logger = logger;
-    }    public async Task<string> GenerateSqlQueryAsync(string userPrompt, string schemaContext)
+    }
+    public async Task<string> GenerateSqlQueryAsync(string userPrompt, string schemaContext)
     {
         try
         {
-            ChatClient chatClient = _azureClient.GetChatClient(_deploymentName);
-            
+            ChatClient chatClient = _azureClient.GetChatClient(_modelName);
+
             // Build the list of ChatMessages - using same prompt as OpenAiService
             List<ChatMessage> messages = new()
             {
