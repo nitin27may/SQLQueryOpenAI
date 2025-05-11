@@ -1,4 +1,6 @@
 using SQLQueryAI;
+using SQLQueryAI.services;
+using static SQLQueryAI.services.SqlAiServiceFactory;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,16 +10,57 @@ builder.Services.AddOpenApi(); // For minimal APIs or MVC, depending on your app
 // ADD THIS to enable controllers
 builder.Services.AddControllers();
 
-// OpenAI API key from appsettings.json or secrets
-string openAiApiKey = builder.Configuration["OpenAI:ApiKey"];
-builder.Services.AddSingleton<OpenAiService>(sp =>
+// Configure the AI service based on appsettings
+var aiConfig = builder.Configuration.GetSection("AI");
+var providerTypeStr = aiConfig["ProviderType"];
+
+if (!Enum.TryParse<ProviderType>(providerTypeStr, out var providerType))
 {
-    var logger = sp.GetRequiredService<ILogger<OpenAiService>>();
-    return new OpenAiService(openAiApiKey, logger);
+    providerType = ProviderType.OpenAI; // Default to OpenAI if not specified or invalid
+}
+
+// Register the AI service factory and configuration
+builder.Services.AddSingleton<ISqlAiService>(sp =>
+{
+    // Create the appropriate configuration based on provider type
+    var aiServiceConfig = new AiServiceConfiguration
+    {
+        ApiKey = providerType switch
+        {
+            ProviderType.OpenAI => aiConfig["OpenAI:ApiKey"],
+            ProviderType.AzureOpenAI => aiConfig["AzureOpenAI:ApiKey"],
+            ProviderType.Claude => aiConfig["Claude:ApiKey"],
+            ProviderType.Gemini => aiConfig["Gemini:ApiKey"],
+            _ => aiConfig["OpenAI:ApiKey"]
+        },
+        Endpoint = aiConfig["AzureOpenAI:Endpoint"],
+        DeploymentName = aiConfig["AzureOpenAI:DeploymentName"],
+        Model = providerType switch
+        {
+            ProviderType.OpenAI => aiConfig["OpenAI:Model"],
+            ProviderType.AzureOpenAI => aiConfig["AzureOpenAI:Model"],
+            ProviderType.Claude => aiConfig["Claude:Model"],
+            ProviderType.Gemini => aiConfig["Gemini:Model"],
+            _ => aiConfig["OpenAI:Model"]
+        }
+    };
+
+    // Get the logger for the appropriate service type
+    ILogger logger = providerType switch
+    {
+        ProviderType.OpenAI => sp.GetRequiredService<ILogger<SQLQueryAI.services.OpenAiService>>(),
+        ProviderType.AzureOpenAI => sp.GetRequiredService<ILogger<AzureOpenAiService>>(),
+        ProviderType.Claude => sp.GetRequiredService<ILogger<ClaudeService>>(),
+        ProviderType.Gemini => sp.GetRequiredService<ILogger<GeminiService>>(),
+        _ => sp.GetRequiredService<ILogger<SQLQueryAI.services.OpenAiService>>()
+    };
+
+    // Create the service using the factory
+    return SqlAiServiceFactory.CreateService(providerType, aiServiceConfig, logger);
 });
 
 // Database connection string
-string connectionString = builder.Configuration["ConnectionStrings:DefaultConnection"];
+string connectionString = builder.Configuration["ConnectionStrings:DefaultConnection"] ?? "";
 builder.Services.AddSingleton<DatabaseService>(sp =>
 {
     var logger = sp.GetRequiredService<ILogger<DatabaseService>>();
