@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using SQLQueryAI.services;
 
 namespace SQLQueryAI.Controllers;
 
@@ -6,14 +7,14 @@ namespace SQLQueryAI.Controllers;
 [Route("api/[controller]")]
 public class SqlController : ControllerBase
 {
-    private readonly OpenAiService _openAiService;
+    private readonly ISqlAiService _sqlAiService;
     private readonly DatabaseService _databaseService;
     private readonly ILogger<SqlController> _logger;
     // Example: a service that fetches your DB schema, relationships, etc.
 
-    public SqlController(OpenAiService openAiService, DatabaseService databaseService, ILogger<SqlController> logger)
+    public SqlController(ISqlAiService sqlAiService, DatabaseService databaseService, ILogger<SqlController> logger)
     {
-        _openAiService = openAiService;
+        _sqlAiService = sqlAiService;
         _databaseService = databaseService;
         _logger = logger;
     }
@@ -27,7 +28,7 @@ public class SqlController : ControllerBase
             string schemaContext = _databaseService.GetSchemaAndRelationships();
 
             // Generate the structured SQL query
-            string sqlQuery = await _openAiService.GenerateSqlQueryAsync(userPrompt, schemaContext);
+            string sqlQuery = await _sqlAiService.GenerateSqlQueryAsync(userPrompt, schemaContext);
 
             // Return the query
             return Ok(new { Query = sqlQuery });
@@ -71,7 +72,7 @@ public class SqlController : ControllerBase
             string schemaContext = _databaseService.GetSchemaAndRelationships();
 
             // 2. Generate the SQL
-            string sqlQuery = await _openAiService.GenerateSqlQueryAsync(userPrompt, schemaContext);
+            string sqlQuery = await _sqlAiService.GenerateSqlQueryAsync(userPrompt, schemaContext);
 
             // 3. Execute the generated query
             IEnumerable<dynamic> results = await _databaseService.ExecuteQueryAsync(sqlQuery);
