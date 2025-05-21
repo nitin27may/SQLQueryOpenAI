@@ -12,7 +12,9 @@ builder.Services.AddControllers();
 
 // Configure the AI service based on appsettings
 var aiConfig = builder.Configuration.GetSection("AI");
-var providerTypeStr = aiConfig["ProviderType"];
+
+// Check environment variables for provider type first, then fallback to appsettings
+var providerTypeStr = Environment.GetEnvironmentVariable("AI_PROVIDER_TYPE") ?? aiConfig["ProviderType"];
 
 if (!Enum.TryParse<ProviderType>(providerTypeStr, out var providerType))
 {
@@ -21,27 +23,26 @@ if (!Enum.TryParse<ProviderType>(providerTypeStr, out var providerType))
 
 // Register the AI service factory and configuration
 builder.Services.AddSingleton<ISqlAiService>(sp =>
-{
-    // Create the appropriate configuration based on provider type
+{    // Create the appropriate configuration based on provider type
     var aiServiceConfig = new AiServiceConfiguration
     {
         ApiKey = providerType switch
         {
-            ProviderType.OpenAI => aiConfig["OpenAI:ApiKey"],
-            ProviderType.AzureOpenAI => aiConfig["AzureOpenAI:ApiKey"],
-            ProviderType.Claude => aiConfig["Claude:ApiKey"],
-            ProviderType.Gemini => aiConfig["Gemini:ApiKey"],
-            _ => aiConfig["OpenAI:ApiKey"]
+            ProviderType.OpenAI => Environment.GetEnvironmentVariable("OPENAI_API_KEY") ?? aiConfig["OpenAI:ApiKey"] ?? "",
+            ProviderType.AzureOpenAI => Environment.GetEnvironmentVariable("AZURE_OPENAI_API_KEY") ?? aiConfig["AzureOpenAI:ApiKey"] ?? "",
+            ProviderType.Claude => Environment.GetEnvironmentVariable("CLAUDE_API_KEY") ?? aiConfig["Claude:ApiKey"] ?? "",
+            ProviderType.Gemini => Environment.GetEnvironmentVariable("GEMINI_API_KEY") ?? aiConfig["Gemini:ApiKey"] ?? "",
+            _ => Environment.GetEnvironmentVariable("OPENAI_API_KEY") ?? aiConfig["OpenAI:ApiKey"] ?? ""
         },
-        Endpoint = aiConfig["AzureOpenAI:Endpoint"],
-        DeploymentName = aiConfig["AzureOpenAI:DeploymentName"],
+        Endpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT") ?? aiConfig["AzureOpenAI:Endpoint"] ?? "",
+        DeploymentName = Environment.GetEnvironmentVariable("AZURE_OPENAI_DEPLOYMENT_NAME") ?? aiConfig["AzureOpenAI:DeploymentName"] ?? "",
         Model = providerType switch
         {
-            ProviderType.OpenAI => aiConfig["OpenAI:Model"],
-            ProviderType.AzureOpenAI => aiConfig["AzureOpenAI:Model"],
-            ProviderType.Claude => aiConfig["Claude:Model"],
-            ProviderType.Gemini => aiConfig["Gemini:Model"],
-            _ => aiConfig["OpenAI:Model"]
+            ProviderType.OpenAI => Environment.GetEnvironmentVariable("OPENAI_MODEL") ?? aiConfig["OpenAI:Model"] ?? "gpt-4o",
+            ProviderType.AzureOpenAI => Environment.GetEnvironmentVariable("AZURE_OPENAI_MODEL") ?? aiConfig["AzureOpenAI:Model"] ?? "gpt-4",
+            ProviderType.Claude => Environment.GetEnvironmentVariable("CLAUDE_MODEL") ?? aiConfig["Claude:Model"] ?? "claude-3-sonnet-20240229",
+            ProviderType.Gemini => Environment.GetEnvironmentVariable("GEMINI_MODEL") ?? aiConfig["Gemini:Model"] ?? "gemini-pro",
+            _ => Environment.GetEnvironmentVariable("OPENAI_MODEL") ?? aiConfig["OpenAI:Model"] ?? "gpt-4o"
         }
     };
 
@@ -60,7 +61,8 @@ builder.Services.AddSingleton<ISqlAiService>(sp =>
 });
 
 // Database connection string
-string connectionString = builder.Configuration["ConnectionStrings:DefaultConnection"] ?? "";
+string connectionString = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION") ?? 
+                         builder.Configuration["ConnectionStrings:DefaultConnection"] ?? "";
 builder.Services.AddSingleton<DatabaseService>(sp =>
 {
     var logger = sp.GetRequiredService<ILogger<DatabaseService>>();

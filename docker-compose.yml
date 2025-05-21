@@ -9,19 +9,29 @@ services:
       - 8000:8000
     environment:
       - ASPNETCORE__ENVIRONMENT=${ENVIRONMENT}
-      - ConnectionStrings__DefaultConnection=Server=${SQL_SERVER};Database=${SQL_DATABASE};User ID=${SQL_USER};Password=${SQL_PASSWORD};Trusted_Connection=False;Encrypt=False;
-      - OpenAI__ApiKey=${OpenAIApiKey}
-
+      - DEFAULT_CONNECTION=Server=${SQL_SERVER};Database=${SQL_DATABASE};User ID=${SQL_USER};Password=${SQL_PASSWORD};Trusted_Connection=False;Encrypt=False;
+      # AI Provider Configuration
+      - AI_PROVIDER_TYPE=${AI_PROVIDER_TYPE}
+      # OpenAI Configuration
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL}
+      # Azure OpenAI Configuration
+      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY}
+      - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT}
+      - AZURE_OPENAI_DEPLOYMENT_NAME=${AZURE_OPENAI_DEPLOYMENT_NAME}
+      - AZURE_OPENAI_MODEL=${AZURE_OPENAI_MODEL}
+      # Claude Configuration
+      - CLAUDE_API_KEY=${CLAUDE_API_KEY}
+      - CLAUDE_MODEL=${CLAUDE_MODEL}
+      # Gemini Configuration      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GEMINI_MODEL=${GEMINI_MODEL}      
     depends_on:
       - mssql
     networks:
       - mssql_network
-      
+  
   mssql:
-    #image: mcr.microsoft.com/mssql/server:2022-latest
-    build:
-      context: ./mssql
-      dockerfile: Dockerfile
+    image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: sqlserver_express
     environment:
       - ACCEPT_EULA=Y
@@ -30,14 +40,14 @@ services:
     ports:
       - "1433:1433"  # Expose SQL Server port 1433
     volumes:
-      - mssql_data:/var/opt/mssql  # Persist database data outside of the container
+      - mssql_data:/var/opt/mssql:rw  # Persist database data outside of the container
       - ./scripts:/scripts  # Mount for SQL scripts
     entrypoint:
       - /bin/bash
       - -c
       - |
-        /opt/mssql/bin/sqlservr & sleep 30s;
-        /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${SQL_PASSWORD} -d master -i /scripts/seed-data.sql; wait
+        /opt/mssql/bin/sqlservr & sleep 15s;
+        /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${SQL_PASSWORD} -d master -i /scripts/seed-data.sql; wait
     networks:
       - mssql_network
 
@@ -48,3 +58,4 @@ volumes:
 networks:
   mssql_network:
     driver: bridge
+    enable_ipv6: false
