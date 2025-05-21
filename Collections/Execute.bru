@@ -5,11 +5,11 @@ meta {
 }
 
 post {
-  url: http://localhost:5275/api/sql/execute
+  url: http://localhost:8000/api/sql/execute
   body: json
   auth: none
 }
 
 body:json {
-  "SELECT CustomerName, OrderDate FROM Customers c INNER JOIN Orders o ON c.CustomerID = o.CustomerID WHERE YEAR(o.OrderDate) = 2023;"
+  "SELECT o.OrderID, o.OrderDate, o.TotalAmount, od.ProductName, od.Quantity, od.Price FROM Customer c JOIN [Order] o ON c.CustomerID = o.CustomerID JOIN OrderDetails od ON o.OrderID = od.OrderID WHERE c.CustomerName = 'Jane Smith' AND YEAR(o.OrderDate) = 2023;"
 }
