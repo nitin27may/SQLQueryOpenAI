@@ -202,6 +202,9 @@ Content-Type: application/json
 
 Send a POST request to execute a SQL query:
 
+
+You can use `SQLQueryAI.http` file in VS Code or Visual Studio for calling rest apis.
+
 ```http
 POST http://localhost:8000/api/sql/execute
 Content-Type: application/json
