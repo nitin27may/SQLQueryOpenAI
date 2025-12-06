@@ -23,7 +23,8 @@ services:
       # Claude Configuration
       - CLAUDE_API_KEY=${CLAUDE_API_KEY}
       - CLAUDE_MODEL=${CLAUDE_MODEL}
-      # Gemini Configuration      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      # Gemini Configuration
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
       - GEMINI_MODEL=${GEMINI_MODEL}      
     depends_on:
       - mssql

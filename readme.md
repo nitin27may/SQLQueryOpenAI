@@ -4,7 +4,7 @@
 
 ## TL;DR
 
-SQL Query AI Builder is a multi-provider AI platform that transforms natural language into SQL queries. It supports multiple LLM providers (OpenAI, Azure OpenAI, Anthropic's Claude, and Google's Gemini), allowing you to easily switch between them using configuration settings. The application includes a .NET 9 backend API that generates and executes SQL against a demo database, all containerized with Docker for easy setup.
+SQL Query AI Builder is a multi-provider AI platform that transforms natural language into SQL queries. It supports multiple LLM providers (OpenAI, Azure OpenAI, Anthropic's Claude, and Google's Gemini), allowing you to easily switch between them using configuration settings. The application includes a .NET 10 backend API that generates and executes SQL against a demo database, all containerized with Docker for easy setup.
 
 Key features include:
 - Dynamic provider selection using environment variables or appsettings.json
@@ -84,7 +84,7 @@ The architecture follows a factory pattern that allows dynamic selection of AI s
 ## Prerequisites
 
 - **Without Docker:**
-  - .NET 9.0 SDK or later
+  - .NET 10.0 SDK or later
   - Microsoft SQL Server
   - API keys for your chosen LLM provider(s)
 
